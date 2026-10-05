@@ -36,7 +36,7 @@ Run the read-only stdlib Python3 [checker](../scripts/check_state_graph.py) afte
 python3 "<skill-directory>/scripts/check_state_graph.py" "<destination>/.replica-evidence"
 ```
 
-It checks only routes/states/interactions structure and edge consistency; exit 1 reports malformed records, duplicate IDs, unresolved nonnull IDs or mismatched triples. Explicit null references require keyed `nullReasons` and produce warnings rather than invented links. Exit 0, including empty templates or partial graphs with warnings, proves structural consistency only, never coverage or fidelity.
+It checks routes/states/interactions structure, typed and duplicate IDs, `state.routeId`, interaction source/destination state IDs, outgoing transition interaction/destination IDs and their triples; exit 1 reports malformed records or failures of those checks, while route state lists, interaction route IDs, fixtures, components, evidence and run references remain manual full-contract checks. Explicit null references require keyed `nullReasons` and produce warnings rather than invented links. Exit 0, including empty templates or partial graphs with warnings, proves structural consistency only, never coverage or fidelity.
 
 ## Record fields
 
