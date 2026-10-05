@@ -170,24 +170,131 @@ On its first invocation, Swiper initializes `.replica-evidence/` from [`skills/s
 
 ### Prerequisites
 
-- **Python 3.9+** (Standard library only; zero third-party dependencies required for graph checking and unit tests).
-- **Jev Ultrafast MCP** (`jev-ultrafast-mcp`) configured in your agent environment for live browser inspection.
+- **Python 3.9+** (Standard library only; zero external Python dependencies required for the state graph checker and test suite).
+- **Jev Ultrafast MCP** (`jev-ultrafast-mcp`) configured in your agent environment for autonomous browser inspection and screenshot capture.
+- **Git** (for cloning the repository).
 
-### Skill Installation
+---
 
-To register Swiper with your AI coding agent (e.g. Codex or Antigravity):
+### Step 1: Clone the Repository
+
+Clone the Swiper repository to your local environment:
 
 ```bash
-# Link or copy the skill directory into your agent skills path:
+git clone https://github.com/normieg/Swiper.git
+cd Swiper
+```
+
+---
+
+### Step 2: Install as an Agent Skill
+
+Swiper follows the standard skill package structure (`SKILL.md` + `references/` + `assets/` + `scripts/`). You can install it globally for your AI coding assistant or locally within a specific project workspace:
+
+#### Option A: Global Skill Installation
+
+Depending on your agent runtime, copy or link `skills/swiper` into your global skills directory:
+
+**For Codex CLI:**
+```bash
 mkdir -p ~/.codex/skills
 cp -r skills/swiper ~/.codex/skills/swiper
 ```
 
-Once installed, invoke the skill directly in your agent session:
+**For Antigravity CLI / Agent Runtimes:**
+```bash
+mkdir -p ~/.agents/skills
+cp -r skills/swiper ~/.agents/skills/swiper
+```
 
+**For Claude Code / Claude Desktop:**
+```bash
+mkdir -p ~/.claude/skills
+cp -r skills/swiper ~/.claude/skills/swiper
+```
+
+> [!TIP]
+> **Active Development Symlink**: If you want edits in this repo to be immediately reflected in your agent sessions without copying every time, create a symbolic link instead:
+> ```bash
+> ln -s "$(pwd)/skills/swiper" ~/.codex/skills/swiper
+> # or:
+> ln -s "$(pwd)/skills/swiper" ~/.agents/skills/swiper
+> ```
+
+#### Option B: Workspace-Level Installation
+
+To equip Swiper for a specific project without installing it globally, copy `skills/swiper` directly into your target workspace:
+
+```bash
+# From within your project's root:
+mkdir -p .agents/skills
+cp -r /path/to/Swiper/skills/swiper .agents/skills/swiper
+```
+
+---
+
+### Step 3: Configure Browser MCP Tooling (Jev Ultrafast)
+
+Swiper uses the `jev-ultrafast-mcp` browser server for live DOM/CSS inspection, viewport verification, and paired screenshot capture.
+
+Ensure `jev-ultrafast-mcp` is configured in your agent's MCP settings (e.g. `~/.gemini/antigravity-cli/mcp/`, `claude_desktop_config.json`, or your IDE's MCP config):
+
+```json
+{
+  "mcpServers": {
+    "jev-ultrafast-mcp": {
+      "command": "npx",
+      "args": ["-y", "jev-ultrafast-mcp"]
+    }
+  }
+}
+```
+
+---
+
+### Step 4: Verify the Installation
+
+Run the bundled test suite to ensure the environment and graph checker are working properly:
+
+```bash
+# 1. Run unit tests (6 tests, ~10ms)
+python3 -m unittest discover -s skills/swiper/tests -v
+
+# 2. Test the state graph checker on the bundled evidence template
+python3 skills/swiper/scripts/check_state_graph.py skills/swiper/assets/evidence-template
+```
+
+Expected output:
+```text
+test_actual_reused_interaction_failures (test_check_state_graph.StateGraphTests) ... ok
+test_consistent_graph (test_check_state_graph.StateGraphTests) ... ok
+...
+Ran 6 tests in 0.010s
+
+OK
+Structurally valid: 0 states, 0 interactions. Structural consistency only; not coverage, browser verification, or fidelity.
+```
+
+---
+
+### Step 5: How to Invoke Swiper
+
+Once installed, invoke Swiper in your AI coding agent session using any of the following methods:
+
+**1. Skill Prefix / Command:**
 ```text
 $swiper Recreate https://example.com with responsive navigation and local mock data
 ```
+
+**2. Slash Command:**
+```text
+/swiper https://example.com
+```
+
+**3. Natural Language Prompts:**
+- *"Clone the landing page at https://example.com and build a local React replica using Swiper."*
+- *"Dissect and reverse engineer the checkout flow and animations of https://example.com with local mocks."*
+- *"Replicate the navigation and modal states of https://example.com."*
 
 ---
 
