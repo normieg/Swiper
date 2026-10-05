@@ -31,6 +31,10 @@ A significant state is a route plus fixture conditions and observable behavior, 
 4. Verify reverse action or reset against the initial assertions, then inspect the next significant branch. A reset instruction is not proof that reset works. Share viewport coverage only after observed equivalence; otherwise preserve profile-specific behavior and assertions.
 5. Attach registered captures or inspection output with URL, state, viewport, action, and time. Use `confidence` `observed`, `estimated`, `assumed`, or `blocked`; record unknowns explicitly. `verificationStatus` remains `unverified` until actual checks pass, or becomes `failed`/`blocked` from evidence.
 
+Keep globally unique state/interaction IDs and check each outgoing state's ID against its interaction's source, plus both destination IDs. An action shared by two source states needs two interactions: `S002 + I003 -> S004` cannot reuse I003 defined as `S003 -> S004`. Run the [structural graph checker](../scripts/check_state_graph.py) using the [contract command](evidence-contract.md) after graph edits; fix inconsistent edges before implementing. A structural pass does not verify behavior or coverage.
+
+Distinct interaction IDs apply when the action genuinely exists in both states. Remove an impossible toast-dismiss edge from a state without a toast; do not fabricate transitions to satisfy structure. Unobserved hypotheses remain explicitly unverified until inspection supports them.
+
 ## Inspect control behavior and semantics
 
 | Control check | Observe and record |

@@ -32,6 +32,8 @@ Each phase consumes the previous evidence and updates it before its exit conditi
 
 Preserve meaningful states such as disabled, unavailable, out-of-stock, empty, error, overlay, and selected variants; do not collapse them into mere data differences. Never merge meaningful route/state variants solely because they look similar; merge only after observed behavior and structure agree. Check button/link names, labels, tab order, disabled behavior, focus trapping/restoration, and relevant ARIA.
 
+After graph edits and before implementing a batch, run the read-only [state graph checker](scripts/check_state_graph.py) as described in [evidence-contract](references/evidence-contract.md). Structural consistency does not establish inspection coverage or browser verification.
+
 **A blocked browser stops additional implementation batches.** Independent evidence inspection may continue. Record the blocker and resume verification of the existing batch when available.
 
 ## Resume and finish

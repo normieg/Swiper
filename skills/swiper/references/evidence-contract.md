@@ -26,6 +26,18 @@ Allocate monotonic IDs: `R001` route, `S001` state, `I001` interaction, `A001` a
 
 Each reference must resolve to an existing record. Paths are relative to `.replica-evidence/` for evidence, and to the destination project for implementation/assets. Ordered entry/action/reset steps use plain language and semantic targets; refresh tool references at runtime instead of preserving stale DOM handles.
 
+State IDs and interaction IDs are globally unique. Every outgoing edge must agree as a triple: its owning state ID equals the interaction's `sourceStateId`, and its `destinationStateId` equals the interaction's destination. The same action from different source/destination states needs distinct interaction IDs, even when its action label is shared. For example, `S002 + I003 -> S004` is invalid if I003 records `S003 -> S004`; allocate a separate interaction for the S002 action instead of reusing I003.
+
+Repair only evidenced transitions: remove impossible/unobserved edges or retain explicitly unverified hypotheses for inspection. Do not invent source behavior to satisfy the checker. A toast-dismiss edge from a state with no toast is not repaired by duplicating the interaction ID into a new action.
+
+Run the read-only stdlib Python3 [checker](../scripts/check_state_graph.py) after graph edits and before batch implementation. Substitute the actual skill-directory and destination paths, keeping them quoted:
+
+```sh
+python3 "<skill-directory>/scripts/check_state_graph.py" "<destination>/.replica-evidence"
+```
+
+It checks only routes/states/interactions structure and edge consistency; exit 1 reports malformed records, duplicate IDs, unresolved nonnull IDs or mismatched triples. Explicit null references require keyed `nullReasons` and produce warnings rather than invented links. Exit 0, including empty templates or partial graphs with warnings, proves structural consistency only, never coverage or fidelity.
+
 ## Record fields
 
 Use camelCase fields. These are the complete baseline fields; optional provenance/notes may supplement them without replacing them.
