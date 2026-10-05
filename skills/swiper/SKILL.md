@@ -1,9 +1,9 @@
 ---
-name: website-frontend-replication
+name: swiper
 description: Use when the user asks to clone, copy, recreate, or reverse engineer a website frontend, including its interactions, responsive layouts, assets, and animations, using Jev browser inspection.
 ---
 
-# Website Frontend Replication
+# Swiper
 
 Recreate the observed frontend with local mocks. User instructions take priority; this workflow adds no approval requirements for unrelated actions.
 
