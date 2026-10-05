@@ -9,10 +9,8 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Agent-Skill-4B32C3?style=for-the-badge" alt="Agent Skill">
   <img src="https://img.shields.io/badge/Python-3-3776AB?style=for-the-badge&amp;logo=python&amp;logoColor=white" alt="Python 3">
-  <img src="https://img.shields.io/badge/JSON-Schema_v1-000000?style=for-the-badge&amp;logo=json&amp;logoColor=white" alt="JSON Schema">
-  <img src="https://img.shields.io/badge/Markdown-Skill_Guides-000000?style=for-the-badge&amp;logo=markdown&amp;logoColor=white" alt="Markdown">
-  <img src="https://img.shields.io/badge/Skill-Codex_%2F_Antigravity-4B32C3?style=for-the-badge" alt="Agent Skill">
   <img src="https://img.shields.io/badge/Inspection-Jev_Ultrafast-238636?style=for-the-badge" alt="Jev Ultrafast Inspection">
 </p>
 
@@ -37,7 +35,7 @@
 | **Browser Inspection** | Jev Ultrafast (`jev-ultrafast-mcp`) | Discovers DOM, computed styles, responsive viewports, interactions, and captures screenshots |
 | **Graph Validation** | Python 3 (Standard Library) | Validates route/state/interaction triple integrity via [`skills/swiper/scripts/check_state_graph.py`](./skills/swiper/scripts/check_state_graph.py) |
 | **Verification & Testing** | Python `unittest` | Automated regression test suite in [`skills/swiper/tests/test_check_state_graph.py`](./skills/swiper/tests/test_check_state_graph.py) |
-| **Evidence Contract** | JSON Schema (v1) & Markdown | Structured monotonic records stored in `.replica-evidence/` using templates in [`skills/swiper/assets/evidence-template/`](./skills/swiper/assets/evidence-template/) |
+| **Evidence Contract** | JSON & Markdown | Structured monotonic records stored in `.replica-evidence/` using templates in [`skills/swiper/assets/evidence-template/`](./skills/swiper/assets/evidence-template/) |
 | **Benchmark Evals** | Markdown Tabletop Evaluations | Scenarios and small-model evaluation runs documented in [`skills/swiper/evals/`](./skills/swiper/evals/) |
 
 ---
@@ -189,7 +187,7 @@ cd Swiper
 
 ### Step 2: Install as an Agent Skill
 
-Swiper follows the standard skill package structure (`SKILL.md` + `references/` + `assets/` + `scripts/`). You can install it globally for your AI coding assistant or locally within a specific project workspace:
+Swiper follows the standard skill package structure (`SKILL.md` + `references/` + `assets/` + `scripts/`). It is compatible with **any AI agent** (Claude Code, Cursor, Windsurf, Codex, Antigravity, OpenCode, Aider, or any custom agent harness). You can install it globally for your AI coding assistant or locally within a specific project workspace:
 
 #### Option A: Global Skill Installation
 
