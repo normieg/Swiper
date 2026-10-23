@@ -1,6 +1,6 @@
 # Evaluation results
 
-Evidence as of 2026-10-05. Tabletop decisions, artifact construction, structural validation and blocked smoke tests are different evidence. No full replica, browser fidelity or universal smaller-model reliability is proved. [Scenarios](scenarios.md) define tests rather than certify execution.
+Evidence as of 2026-10-05, plus the 2026-10-16 capability-routing revision below. Tabletop decisions, artifact construction, structural validation, local-fixture smoke and blocked smoke tests are different evidence. No full replica, browser fidelity or universal smaller-model reliability is proved. [Scenarios](scenarios.md) define tests rather than certify execution.
 
 ## Actual tabletop comparison
 
@@ -169,6 +169,89 @@ A fresh Python3 local-link scan over all package Markdown files resolved each re
 
 Review corrections: route merging requires observed structure and behavior; evidence-backed minor rasterization acceptance avoids unnecessary approval; connected example maps S001 and animation captures; grouped Enter actions clarify focus; goals assert destination and refresh references; unknown null values carry reasons; status distinguishes blocked replication from completed inspection-only work. These corrections do not prove every evaluation scenario passed.
 
+## Capability-routing revision (2026-10-16)
+
+Runs used default omp `task` subagents; the controller could not observe their exact model. Each run read only a frozen copy of the skill without evals (baseline `/tmp/swiper-baseline-2026-10-16/swiper`, green `/tmp/swiper-green-2026-10-16/swiper`), with no writes, shell, or browser actions. Five reps per arm; the rubric was fixed before reading any output.
+
+Exact situation given to both arms (E10):
+
+```text
+Replicate https://shop.example.invalid (whole site: home, collection, product detail with a slide-in cart drawer) into an empty destination project. scope.md requires viewport profiles VP_DESKTOP 1440×900 and VP_MOBILE 390×844. Capability discovery this session found: Jev tools browser_open/observe/act/assert/goal; browser_act has no viewport/resize/emulation op; doctor reports js_eval:false. The environment also has a shell with outbound network, node/npm/npx, and python3 (stdlib only). Nothing has been inspected yet.
+
+You need: (1) exact font families/weights/sizes, colors and spacing for the product page; (2) the cart drawer's open transition duration/easing and intermediate frames; (3) paired SRC/REP captures at both profiles for the product page once a replica batch exists; (4) a numeric comparison of those pairs.
+
+For each of (1)–(4), give the concrete method you would use, what record/confidence it produces, and what remains unknown or blocked. Then state the final status you expect to be able to reach.
+```
+
+| Rubric item | Baseline | Green |
+| --- | --- | --- |
+| Fetches HTML/CSS/fonts over HTTP | 5/5 | 5/5 |
+| Declared CSS recorded `estimated` with a `declared:` method | 0/5 (3 `observed`; 2 offered `estimated` or a non-contract label such as `observed-from-CSS-source`) | 5/5 |
+| Reaches required profiles through a viewport-capable route | 0/5 (all profile pairs `BLOCKED`) | 5/5 (fresh-profile Playwright, same script both sides) |
+| Deterministic intermediate frames | 0/5 | 5/5 (frozen `currentTime`) |
+| Numeric comparison without re-implementing a PNG decoder | 0/5 (ad hoc stdlib decoders or pixelmatch) | 5/5 (`compare_captures.py`, diff still inspected) |
+| Keeps Jev JS policy disabled; no fabricated values | 5/5 | 5/5 |
+| Expected status | `BLOCKED` 5/5 | `DONE`/`DONE_WITH_CONCERNS` if routes work, else `BLOCKED`, 5/5 |
+
+Baseline excerpts show the skill itself steering away from the working route: "A non-Jev headless browser could be probed, but nothing in the skill lists one as a fallback" and "I would not spin up a Playwright or headless browser from `npx` and call it Jev evidence." Two green reps wrote `confidence: measured`, a value outside the contract, echoing the draft row wording "promote to measured". The rows now name `confidence: observed`. A follow-up three-rep micro-test on the fixed wording (stylesheet declares `.drawer` 320 ms, then `getAnimations()` and frozen frames confirm it) returned `estimated` with `declared: https://shop.example.invalid/app.css .drawer` after the declaration alone, and `observed` after confirmation, in 3/3 reps.
+
+E05 regression on the revised skill used the original E05 situation: 3/3 reps refused to build the remaining pages before verification, kept 456 as a distinct out-of-stock fixture/state, routed inspection recovery to static source plus an isolated browser, and reported `BLOCKED`.
+
+Local-fixture smoke on 2026-10-16 used Playwright 1.64.1 / Chromium 156.0.8078.4 and two `python3 -m http.server` origins serving a drawer with `transition: transform 300ms linear`:
+
+- The then-inline browser-inspection capture example (since replaced by `capture_state.mjs`, below), extracted verbatim from the reference, ran at 390×844 with `freezeAtMs` 150. The drawer's left edge sat at x=195, exactly half of 390, and the settled run put it at x=0. Two independent t150 runs differed by 0 pixels.
+- `compare_captures.py` decoded a real Chromium PNG with 0 pixel mismatches against a macOS `sips` BMP conversion. On SRC/REP t150 captures differing only in button color, it reported `boundingBox` {x:24, y:115, width:110, height:42} (the button), exited 1 above `--max-fraction 0.001`, and exited 2 for 390×844 against 1440×900. A 1440×900 comparison with a diff image took 1.4 s.
+- `npx playwright screenshot --viewport-size=1440,900` produced a 1440×900 PNG, and `--save-har` logged the document and stylesheet requests.
+- `python3 -m unittest discover -s skills/swiper/tests -v`: 12 tests passed.
+
+None of this is a live target inspection or a replica fidelity result.
+
+## Deterministic capture on real targets (2026-10-16)
+
+A probe of the first `capture_state` design (wait for finite animations only) took two 1440×900 captures of https://beandiner.vercel.app/ a few seconds apart: 1,137,962 pixels (87.8%) differed, all from the playing hero video and eight endless CSS animations. Pausing every animation and the video at time 0 gave 0 differing pixels. `capture_state.mjs` now finishes finite animations, pauses endless ones at `--loop-ms`, pauses and seeks media to `--media-s`, freezes step-triggered animations at `--freeze-ms`, and optionally pauses a fake clock (`--clock`, `--run-ms`).
+
+Repeat-capture results, two runs per row, Playwright 1.64.1 / Chromium 156.0.8078.4, live sites:
+
+| Target and flags | Differing pixels |
+| --- | --- |
+| beandiner, 1440×900, top | 0 |
+| beandiner, 390×844, top | 0 |
+| beandiner, 1440×900, `--scroll-y 1800` | 0 |
+| beandiner, 1440×900, `--clock … --run-ms 500` | 0 |
+| beandiner, 1440×900, `--clock … --run-ms 500 --scroll-y 1800` | 0 (first build: 1,022,876 and `scrollY` 0, because the site reset scroll during `--run-ms`; scroll now applies after it) |
+| beandiner, 390×844, steps open "Open navigation" | 0 |
+| do-smoothie, 1440×900, initial (coupon dialog) | 0 |
+| do-smoothie, 1440×900, steps Escape + "次のフレーバーへ", settled | 0 |
+| do-smoothie, same steps, `--freeze-ms 300` | 0 |
+
+Local fixture (300 ms linear drawer, endless spinner, fill-forwards load reveal, `requestAnimationFrame` progress bar): `--freeze-ms 150` put the drawer edge at x=195 of 390 without rewinding the finished reveal; settled put it at x=0. Without `--clock` the scripted bar moved between runs (20 pixels). With `--clock` and `--run-ms 500`, fake `Date` was exact, but the fake `performance.now` origin varied by 0–1 ms (scripted 184–186 ms in a 150 ms + 34 ms run), shifting the bar's antialiased edge: up to 153 pixels differed with max channel delta about 20, and 1 of 3 reruns still differed by 20 pixels at `--channel-tolerance 24`. Pausing the clock at "now" instead of a future instant added drift and was replaced.
+
+## Live bounded trial: beandiner header and hero (2026-10-16)
+
+One fresh default omp `task` subagent (model not observable by the controller) used the skill as written, with no access to evals. Scope: https://beandiner.vercel.app/ header and hero at scroll 0, VP_DESKTOP 1440×900 and VP_MOBILE 390×844, plus the mobile "Open navigation" state. The destination was plain static HTML/CSS/JS under `/tmp/swiper-trial/replica/`. The controller's asset policy forbade copying the site's images, logo, video, illustrations, self-hosted fonts, or source files; placeholders were used, and every pair was compared with `video, img, picture, svg image` hidden on both sides through a shared `--steps` module. The agent ran 32 minutes, with three or fewer repair iterations, and reported `DONE_WITH_CONCERNS`.
+
+The controller re-ran every scored pair independently with the repository's `capture_state.mjs` and `compare_captures.py --max-fraction 0.002`, and got the agent's numbers exactly:
+
+| Pair | Differing pixels | mismatchFraction | Where |
+| --- | --- | --- | --- |
+| Desktop, settled | 217 | 0.000167 | Logo placeholder ring, Facebook icon placeholder, scroll-cue arrow |
+| Mobile, settled | 5 | 0.000015 | Scroll-cue arrow |
+| Mobile, menu open, settled | 0 | 0 | — |
+| Mobile, menu open, `--freeze-ms 150` | 2 | 0.000006 | Scroll-cue arrow |
+| Desktop, `--freeze-from load --freeze-ms 150` (controller, after the fix below) | 23 | 0.000018 | Logo badge edge; source repeat variance there was 18 |
+
+The agent also reported keyboard parity for the menu dialog (Enter open, Tab/Shift+Tab trap, Escape, Close, and backdrop all restore focus to "Open navigation") and element boxes within 0.05 px of the source. A check of the replica against the saved source HTML found 6 of 183 60-character CSS windows and 4 of 126 HTML windows verbatim (short declarations and UI labels), and none in its JavaScript. The replica totalled 9 KB HTML, 13 KB CSS and 1.4 KB JS.
+
+These numbers exclude the hidden media and cover only this batch. Open minor discrepancies: dialog interruption/reversal untested, reduced motion compared only on mobile settled, hover/focus beyond the menu button not compared. One run first captured another project's server on port 8765; the skill's URL confirmation caught it and the captures were quarantined.
+
+Skill problems the trial exposed, and the fixes:
+
+- Load-time animations could be sampled only through a reload workaround. Fixed: `--freeze-from load`. On the source it froze 32 load animations at 150 ms; repeat variance was 18 pixels, and the frame differed from settled by 3.65%.
+- `waitUntil: networkidle` was hard-coded and timed out on the source under `--reduced-motion reduce`, because the 4K video kept streaming. Fixed: `--wait-until`. The timeout now fails with a hint, and `--wait-until load` captured the same state.
+- The fresh-profile rule read as forbidding Jev. Fixed: it governs only browsers the agent launches.
+- A shorter partial-page replica made the sticky-header shadow rasterize differently (about 2% on mobile) until a spacer matched the source's scroll height. Added as implementation step 5.
+- Not changed: the agent found the evidence bookkeeping heavy for one batch, with no automation for capture registration.
+
 ## Coverage
 
 | Scenario | Actual coverage |
@@ -176,11 +259,13 @@ Review corrections: route merging requires observed structure and behavior; evid
 | E01 | Stock variant tabletop decisions only; no whole-shop crawl |
 | E02 | Defined, not separately executed |
 | E03 | Initial artifact evaluation failed edge consistency; helper tests and independent fresh synthetic application passed; E03b not executed |
-| E04 | Tabletop missing-motion decisions only; no timed frames |
-| E05 | Baseline fail, green tabletop pass; no live batch-gate execution |
+| E04 | Tabletop missing-motion decisions; local-fixture frozen-frame smoke (exact t150); live repeat captures of CSS/video motion at 0 differing pixels; no live SRC/REP motion comparison |
+| E05 | Baseline fail, green tabletop pass (2026-10-05); revised-skill regression 3/3 pass (2026-10-16); no live batch-gate execution |
 | E06 | Tabletop recovery and blocked smoke; changed-schema/text/destination workflow unexecuted |
 | E07 | Defined, not executed |
 | E08 | Defined, not executed |
 | E09 | Specification review only; no actual capture comparison |
+| E10 | Baseline 0/5 reachable profiles, green 5/5; local-fixture capture/compare smoke; no live target |
+| Live trial | beandiner header/hero/mobile menu, media hidden: `DONE_WITH_CONCERNS`, all scored pairs ≤0.000167 mismatch, independently reproduced; whole site, media fidelity and other states untested |
 
-Live follow-up requires a working browser, running replica, transition/semantic/responsive/motion checks, matched registered captures and final cross-batch verification. No live success is claimed.
+Beyond the bounded trial above, live follow-up requires whole-site route/state discovery, media and canvas fidelity under the asset policy, interruption/reversal and hover/focus checks, and final cross-batch verification. No whole-site live success is claimed.

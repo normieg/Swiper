@@ -1,6 +1,6 @@
 ---
 name: swiper
-description: Use when the user asks to clone, copy, recreate, or reverse engineer a website frontend, including its interactions, responsive layouts, assets, and animations, using Jev browser inspection.
+description: Use when the user asks to clone, copy, recreate, replicate, or reverse engineer an existing website or web page frontend, such as a pixel-perfect rebuild from a URL or matching a live site's layout, interactions, responsive behavior, assets, or animations.
 ---
 
 # Swiper
@@ -13,7 +13,7 @@ Inputs: source URL, destination project, optional page/flow scope, framework and
 
 Read [evidence-contract](references/evidence-contract.md). On first use, copy [assets/evidence-template](assets/evidence-template/) into the destination's `.replica-evidence/`; never replace existing evidence. Maintain `session.md`, scope, capabilities, route/state graph, route and resource inventories, interaction/motion records, presentation/semantic observations, implementation map, verification evidence, and discrepancies there. Link observations to URL, state, viewport, action, capture, and observation time; distinguish observed, inferred, unknown, blocked, and accepted differences.
 
-Inspect before inferring. Never fabricate measurements, timing, screenshots, successful checks, or coverage. Do not permanently assume a Jev API or capability: discover available tools and probe current browser, evaluation, text-entry, and capture support. Read [browser-inspection](references/browser-inspection.md) before browsing; choose supported fallbacks and record limitations.
+Inspect before inferring. Never fabricate measurements, timing, screenshots, successful checks, or coverage. Do not permanently assume a tool API: discover available tools each session, then route every needed capability to a tool that supports it. Use Jev for semantic navigation, interaction, and assertions; direct HTTP fetches for HTML, CSS, font, and asset source; and an isolated automation browser (Playwright, Puppeteer, or another CDP-capable tool with a fresh profile) for exact viewports, computed styles, network logs, and frozen animation frames. Read [browser-inspection](references/browser-inspection.md) before browsing. A check is blocked only after every route, including adding Playwright as a dev tool where user and project rules permit, has failed or been ruled out with a recorded reason.
 
 ## Ordered checklist
 
@@ -21,12 +21,12 @@ Each phase consumes the previous evidence and updates it before its exit conditi
 
 | Phase | Inputs → outputs | Exit condition |
 | --- | --- | --- |
-| 1. Establish scope/capabilities | Request/project/tools → scope and capability record | Boundaries, viewports, supported inspection methods recorded |
+| 1. Establish scope/capabilities | Request/project/tools → scope and capability routing record | Boundaries, viewports, and a working route or recorded blocker for each needed capability |
 | 2. Discover routes/states | Scope/navigation → route/state graph and inventory; [discovery-and-state](references/discovery-and-state.md) | Scoped route families and meaningful variants identified or explicitly blocked |
 | 3. Dissect interactions/motion | Graph/actions → triggers, transitions, intermediate frames, timing; [animation-inspection](references/animation-inspection.md) | Batch behavior observed with reproducible actions |
-| 4. Inspect presentation/resources/semantics | States/captures → layout, responsive behavior, assets, semantic evidence; [browser-inspection](references/browser-inspection.md) | Batch has sufficient evidence to implement |
+| 4. Inspect presentation/resources/semantics | States/captures/static source → layout, responsive behavior, assets, semantic evidence; [browser-inspection](references/browser-inspection.md) | Batch has sufficient evidence to implement |
 | 5. Implement one bounded batch | Evidence/project → mapped local implementation; [implementation](references/implementation.md) | Only the evidenced batch implemented using mocks |
-| 6. Browser verify that batch | Implementation/source evidence → comparisons and discrepancies; [verification](references/verification.md) | Batch verified, repaired and rechecked, or explicitly blocked |
+| 6. Browser verify that batch | Implementation/source evidence → [capture_state](scripts/capture_state.mjs) pairs, [compare_captures](scripts/compare_captures.py) metrics, discrepancies; [verification](references/verification.md) | Batch verified, repaired and rechecked, or explicitly blocked |
 | 7. Repeat 2–6 | Verified batch/remaining graph → next bounded batch | No unverified batch stacking |
 | 8. Cross-batch verification | Completed graph/map → final route, state, responsive and motion checks | Completion criteria below met |
 

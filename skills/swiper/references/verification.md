@@ -8,11 +8,19 @@ Use [evidence-contract](evidence-contract.md) for IDs, statuses, provenance, imm
 
 1. Run the replica in a browser at its recorded local origin. Discover current browser capabilities and confirm session ownership. Keep source and replica sessions distinct when supported (configurable examples: `swiper-src` and `swiper-rep`). Record side/session/origin mapping; confirm current URL and asserted state before every replay/capture so source checks cannot accidentally run on the replica or vice versa.
 2. Create a fresh run with actual time, environment, code revision/changed files, intended checks, and results. Preserve failed runs and original artifacts. Action success or a goal's `DONE` narrative requires actual successful verify/assert results.
-3. Pair SRC/REP captures only for the same route, state, profile and actual CSS dimensions, phase, equivalent fixture conditions, scroll position, and trigger-relative timing. Match browser/version, zoom, device pixel ratio, fonts/readiness, locale, color scheme, reduced-motion preference, and other relevant environment conditions. Record mismatches; do not infer comparability from filenames.
-4. Set tolerance policy in scope.md before scoring. Repeat source captures under matching conditions to establish natural variation; define a reasoned metric, numeric threshold when using numeric scoring, and baseline for this project/state. There is no universal acceptable percentage. Prioritize geometry, behavior, typography/assets, and meaningful motion over antialiasing noise.
+3. Pair SRC/REP captures only for the same route, state, profile and actual CSS dimensions, phase, equivalent fixture conditions, scroll position, and trigger-relative timing. Capture both sides with [capture_state](../scripts/capture_state.mjs) using identical flags and steps (browser-inspection's Deterministic capture), matching zoom, device pixel ratio, fonts/readiness, locale, color scheme, reduced-motion preference, and other relevant environment conditions. Record mismatches; do not infer comparability from filenames.
+4. Set tolerance policy in scope.md before scoring. Compare repeated source captures under matching conditions to establish natural variation; define a reasoned metric, numeric threshold when using numeric scoring, and baseline for this project/state. There is no universal acceptable percentage. Prioritize geometry, behavior, typography/assets, and meaningful motion over antialiasing noise.
 5. If masks are needed, record exact regions and reasons before comparing and preserve unmasked originals. Masks must never conceal wrong controls, layout geometry, or motion. Aggregate pixel similarity never excuses a material layout defect.
+6. Score each registered pair with the bundled stdlib comparator, passing the scope.md values:
 
-Browser unavailability blocks the current batch and stops further implementation batches; independent evidence inspection can continue. Build output, code inspection, and unit tests cannot substitute for testing the running replica. Unsupported viewport/timing/semantic inspection leaves those checks transparently blocked, not passed.
+   ```sh
+   python3 "<skill-directory>/scripts/compare_captures.py" "<SRC.png>" "<REP.png>" --diff "<diff.png>" \
+     --channel-tolerance <N> --mask <x,y,w,h> --max-fraction <F>
+   ```
+
+   It refuses mismatched dimensions or non-PNG bytes (exit 2), prints `mismatchFraction`, a differing-region `boundingBox`, and `hotCells` as JSON, and exits 1 when `F` is exceeded. Store the JSON and diff image with the run, then inspect the diff and both captures: a number within threshold never overrides a visible material defect, and the tool does not check state, phase, or metadata pairing.
+
+Browser unavailability blocks the current batch and stops further implementation batches; independent evidence inspection can continue. Build output, code inspection, and unit tests cannot substitute for testing the running replica. A viewport, timing, or semantic check with no working route in browser-inspection's routing table stays transparently blocked, not passed.
 
 ## Required batch exit checks
 
@@ -22,7 +30,7 @@ Browser unavailability blocks the current batch and stops further implementation
 | Keyboard/semantics | Exercise keyboard activation, tab order, labels/names, disabled controls, focus entry/trap/restoration and relevant ARIA. Screenshots alone cannot prove nonvisual semantics. |
 | Presentation | Register paired SRC/REP screenshots for affected states with matched metadata; inspect geometry, typography, assets, crop, spacing, and controls in addition to any metric. |
 | Motion | Recheck changed motion at before, intermediate, and endpoint phases, with actual timing/uncertainty; compare sequence/easing and meaningful interruption/reversal/repeat/reduced-motion outcomes. Endpoint images cannot prove motion fidelity. |
-| Responsive | Test the actual required desktop/mobile dimensions and affected breakpoints, including transitions between layouts and profile-specific interactions. A named profile without confirmed dimensions proves nothing. |
+| Responsive | Test the actual required desktop/mobile dimensions, set through a route that supports exact viewports, and affected breakpoints, including transitions between layouts and profile-specific interactions. A named profile without confirmed dimensions proves nothing. |
 | Shared components | Recheck affected consumer routes and variant states after shared changes; propagate stale/failed/blocked status rather than relying on an earlier unrelated run. |
 | Differences | Fix critical/major differences and actually recheck, or obtain explicit user acceptance of a documented scope exclusion. Give every minor difference a recorded disposition/reason. |
 | Records | Update run results, item verification, component evidence, batch verification runs/discrepancy IDs, mappings, inventories, and session cursor. References must resolve; no pending run counts as evidence. |

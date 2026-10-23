@@ -10,13 +10,14 @@ Use [evidence-contract](evidence-contract.md) for records/statuses, [discovery-a
 2. Inspect evidence for the next route/state graph slice. Identify shared components first and list their consumer routes and variant states. Implement shared structure before route-specific composition; preserve observed exceptions rather than forcing variants into one layout.
 3. Register one bounded batch with explicit route, state, interaction, animation, asset, and component IDs as applicable; each ID must resolve. Define files, deterministic fixture IDs, and observable acceptance checks before coding. Include affected shared consumers in the batch's checks.
 4. Require enough source evidence for its presentation, semantics, transitions, responsive behavior, and motion. Unknown outcomes remain assumptions or blockers with reasons; they never become observed coverage merely because local code implements them.
+5. When a batch covers only part of a page, keep the replica document's scroll height and scrollbar presence equal to the source's, for example with an `aria-hidden` spacer standing in for out-of-scope content, so sticky and fixed layers composite identically. Record the spacer in the implementation map and remove it when that content is implemented.
 
 ## Implement and map
 
 | Area | Action/check |
 | --- | --- |
 | Presentation | Reproduce evidenced geometry, typography, colors, surfaces, image crop, responsive changes, and significant variants. Link changes to inventory items. |
-| Assets/fonts | Match actual inspected source URLs and metadata to local files and usage IDs. Confirm local loading and font family/weight coverage. Record inaccessible assets, substitutions, and differences; do not guess asset URLs or claim fallback fonts equivalent. |
+| Assets/fonts | Match actual inspected source URLs and metadata to local files and usage IDs. Copy source images, video, logos, illustrations, and self-hosted font files only when the user owns them or holds a license; otherwise use same-size neutral placeholders (or the font's public licensed distribution), record each substitution as a scope difference, and compare with that media hidden on both sides. Confirm local loading and font family/weight coverage. Record inaccessible assets, substitutions, and differences; do not guess asset URLs or claim fallback fonts equivalent. |
 | Navigation | Map observed source destinations to local routes, preserving meaningful query/hash, browser back/forward, and scroll behavior. Preserve external/out-of-scope destination mappings with their scope disposition; do not silently invent replacement pages or reroute every link home. |
 | Semantics | Use evidenced buttons/links, names, labels, disabled states, focus behavior, and relevant ARIA. Any deliberate correction to source behavior is a documented difference. |
 | Mock state | Use deterministic local fixtures, controlled loading/error outcomes and reset steps. Reproduce observed validation, cart/search/login, persistence, and transient transitions where in scope. Define reload/storage/session behavior explicitly; resets must restore the asserted fixture. |

@@ -18,5 +18,5 @@ Not checked.
 ## Unsupported features
 Not checked.
 
-## Fallback mappings
-Not checked. Map each unavailable operation to a supported fallback or explicit blocker.
+## Capability routing
+Not checked. For each needed capability (interaction, assertions, exact viewport, screenshots, computed styles, static source, network, animation timing, reduced motion, accessibility), record the serving tool and version, or every route tried and why it failed.

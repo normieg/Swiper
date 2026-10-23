@@ -18,9 +18,10 @@ Initialize `.replica-evidence/` from `../assets/evidence-template/` once. On res
   implementation-map.json
   screenshots/source/
   screenshots/replica/
+  static/
 ```
 
-The six inventory files contain `{"schemaVersion":1,"<collection>":[]}`, with collection names `routes`, `states`, `interactions`, `animations`, `assets`, and `discrepancies`. The implementation map contains `schemaVersion: 1` and arrays `components`, `batches`, `mappings`. Markdown records define scope, fixtures, profiles, capabilities, runs, and the resume cursor. Keep run/capture registries in session.md or a linked JSON supplement if needed; their IDs and paths must resolve.
+The six inventory files contain `{"schemaVersion":1,"<collection>":[]}`, with collection names `routes`, `states`, `interactions`, `animations`, `assets`, and `discrepancies`. The implementation map contains `schemaVersion: 1` and arrays `components`, `batches`, `mappings`. Markdown records define scope, fixtures, profiles, capabilities, runs, and the resume cursor. Keep run/capture registries in session.md or a linked JSON supplement if needed; their IDs and paths must resolve. `static/` holds unmodified fetched HTML/CSS/font/asset source; record each file's source URL, fetch time, HTTP status, and SHA-256 where it is cited.
 
 Allocate monotonic IDs: `R001` route, `S001` state, `I001` interaction, `A001` animation, `AS001` asset, `D001` discrepancy, `B001` batch, `C001` component, `RUN001` run. State IDs are globally unique, not per route. Pad to at least three digits and expand naturally (for example `S1000`); never reuse an ID, even after retirement. Define fixture IDs (for example `F001`) and viewport profile IDs (for example `VP_DESKTOP`) before referring to them.
 
@@ -68,7 +69,7 @@ Use `null` for an inapplicable, unknown, or unmeasured field with a recorded rea
 | severity | `critical, major, minor` |
 | disposition | `open, fixed, accepted` |
 
-`observed` requires direct evidence; `estimated` labels an inference/estimate and its method; `assumed` marks an unverified working assumption. Unknown/blocked facts remain explicit and cannot count as observed coverage. `fixed` requires successful rechecking. `accepted` requires an acceptanceReason and supporting evidence. Evidence-backed minor browser rasterization variance may be accepted without user approval; use approvalReference null with a nullReasons entry explaining why approval is unnecessary. Design or behavior omissions, scope exclusions, and unresolved critical or major differences accepted as exclusions require a real user approvalReference. A capture or declared check alone does not make a record verified.
+`observed` requires direct evidence; `estimated` labels an inference/estimate and its method, including a value declared in fetched source but not yet confirmed on the rendered element; `assumed` marks an unverified working assumption. Unknown/blocked facts remain explicit and cannot count as observed coverage. `fixed` requires successful rechecking. `accepted` requires an acceptanceReason and supporting evidence. Evidence-backed minor browser rasterization variance may be accepted without user approval; use approvalReference null with a nullReasons entry explaining why approval is unnecessary. Design or behavior omissions, scope exclusions, and unresolved critical or major differences accepted as exclusions require a real user approvalReference. A capture or declared check alone does not make a record verified.
 
 ## Capture and provenance
 
@@ -94,7 +95,7 @@ Use phases such as `before`, `after`, or `t150`. Store SRC under `screenshots/so
 
 scope.md establishes source URL, scope, exclusions/approvals, destination conventions, route boundaries, representative fixtures and local mock mappings, named viewport dimensions, comparison environment, tolerance metric/baseline, and masks/reasons. Fresh entries say **Not established**.
 
-capabilities.md records discovery date/version, exact current tool names/schemas, supported operations, inspection access, text-entry restrictions, unsupported features, and fallback mappings. Fresh entries say **Not checked**. Do not treat a remembered API as discovery.
+capabilities.md records discovery date/version, exact current tool names/schemas, supported operations, inspection access, text-entry restrictions, unsupported features, and the capability routing table from [browser-inspection](browser-inspection.md). Fresh entries say **Not checked**. Do not treat a remembered API as discovery.
 
 session.md tracks current phase, current batch, last successfully verified item, next item, known blockers, and outstanding critical discrepancies. Maintain this cursor after meaningful progress; preserve history and run evidence on resume. Do not advance past an unverified batch when browser verification is blocked.
 
